@@ -14,9 +14,9 @@
 ## 1. User stories worked this week
 | HU ID | Title | Status (todo/doing/done) | Evidence (PR or commit URL) |
 |---|---|---|---|
-| HU-XXX-001 | Design the core app screens mockup (login, home, appointment request flow) | done | https://github.com/code-corhuila/appt-mgmt-docs |
-| HU-XXX-002 | Design the health tracking and support screens mockup (medication, symptoms, studies, achievements, chat, profile) and wire up navigation | done | https://github.com/code-corhuila/appt-mgmt-docs |
-| HU-XXX-003 | Review and submit the complete MVP documentation | done | https://github.com/code-corhuila/appt-mgmt-docs |
+| HU-UX-001 | Design the core app screens mockup (login, home, appointment request flow) | done | https://github.com/code-corhuila/appt-mgmt-docs |
+| HU-UX-002 | Design the health tracking and support screens mockup (medication, symptoms, studies, achievements, chat, profile) and wire up navigation | done | https://github.com/code-corhuila/appt-mgmt-docs |
+| HU-UX-003 | Review and submit the complete MVP documentation | done | https://github.com/code-corhuila/appt-mgmt-docs |
 
 ## 2. My individual contribution
 - Designed and built a functional HTML mockup for the Salud Activa app, simulating how the app would look and navigate on a phone.
