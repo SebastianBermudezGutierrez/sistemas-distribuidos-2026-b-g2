@@ -16,10 +16,12 @@
 |---|---|---|---|
 | HU-DOM-004 | Finalize the selection of domains for the project                    | done                           | 02-domain                          |
 | HU-DOM-005 | Review the changes needed on the frontend to divide screens across the defined domains, as part of the monolith-to-microservices shift | doing |           |
+| HU-DOM-006 | Start making changes to the documentation repository through child branches and Pull Requests | doing | https://github.com/code-corhuila/appt-mgmt-docs |
 
 ## 2. My individual contribution
 - Took part in the team discussion to finalize the domains the project will use, proposing and defending one of the domains that ended up being selected.
 - The team also started adjusting the project for the shift from a monolith to a microservices architecture; my part in this was reviewing the frontend and looking at what changes need to be made to the screens so they can be divided/organized according to the domains we defined.
+- We also started making changes to the documentation repository through child branches and Pull Requests instead of committing directly, to keep a cleaner history and review process.
 
 ## 3. Blockers and risks
 - As domains get finalized, some previously written documentation (architecture, data models) may need small adjustments to stay consistent.
@@ -32,7 +34,7 @@
 
 ## 5. Compliance self-check
 - [ ] Conventional Commits - `type(scope): summary`
-- [ ] Per-environment HU branch + PR to that environment (hu-xxx-dev -> develop, ...)
+- [x] Per-environment HU branch + PR to that environment (hu-xxx-dev -> develop, ...)
 - [ ] Testable acceptance criteria
 - [ ] Tests added/updated (unit / integration)
 - [x] DDD / hexagonal boundaries respected (domain has no I/O)
