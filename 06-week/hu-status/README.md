@@ -5,7 +5,7 @@
 # Weekly Status - Week 06
 
 <!-- CONFIG-START - must match your profile repo (username/username) CONFIG -->
-- FULL_NAME: SEBASTIAN BERMUDEZ GUTIERREZ
+- FULL_NAME: Sebastian Bermudez Gutierrez
 - GITHUB_USER: SebastianBermudezGutierrez
 - TEAM: Salud Activa
 - SPRINT_GOAL: Research and define the core domains and cross-cutting domains the project will be built around, apply improvements to the MVP to meet code quality requirements, and start dividing the documentation content across each domain.
