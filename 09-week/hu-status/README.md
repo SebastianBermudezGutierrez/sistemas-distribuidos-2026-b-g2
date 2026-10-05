@@ -49,7 +49,6 @@
 
 ## 6. Evidence links
 - Documentation repository: https://github.com/code-corhuila/appt-mgmt-docs
-- Microservices section PR: https://github.com/code-corhuila/appt-mgmt-docs/pull/15
 - Microservices section: 09-microservices
 - UML section reviewed: 08-uml
 - DevOps section reviewed: 10-devops
