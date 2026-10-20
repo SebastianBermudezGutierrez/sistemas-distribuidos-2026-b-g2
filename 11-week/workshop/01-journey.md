@@ -7,11 +7,6 @@ The topology comes from `docker-compose.yml`: `backend` (port 3000, acts as the
 gateway), `appointments-service` (3002), `auth-service` (3001), MongoDB and
 RabbitMQ. The appointment is created as `Pendiente` and a saga confirms it later.
 
-Mapping to the -docs repo (`09-microservices/services/`):
-`backend` plays the role of `01-api-gateway`, `auth-service` is `02-auth-service`
-and `appointments-service` is `03-appointment-service`. The entities are `Turno`
-and `User`, and the endpoint is `/api/turnos`.
-
 ## Hop table
 
 | Step | Caller | Receiver | Protocol | Operation | Sync/Async | Data | Trace context |
@@ -64,3 +59,17 @@ sequenceDiagram
           - `POST /internal/reservations` (SERVER, auth-service)
             - `mongo AppointmentReservation.findOneAndUpdate` (CLIENT)
         - `mongo Turno.findOneAndUpdate` (CLIENT, `finish`)
+
+## How the context propagates
+
+- **HTTP:** the `traceparent` header has the form
+  `00-<trace_id>-<span_id>-01`. The receiver creates a child span with the same
+  `trace_id` and a new `span_id`. `proxyTo` copies `req.headers`, so the header
+  reaches `appointments-service` from `backend` unchanged.
+- **RabbitMQ:** the broker propagates nothing by itself. The producer writes
+  `traceparent` into `properties.headers` and the consumer reads it from there.
+- **Outbox:** the event is stored in `Turno.outboxEvents` and published later,
+  when there is no active span. So `traceparent` must be saved inside the event
+  when it is created and copied into the headers in `publish()`.
+- **Retries:** the consumer already copies the existing headers when it retries,
+  so `traceparent` survives retries and the dead-letter queue.
