@@ -5,9 +5,9 @@
 # Weekly Status - Week 11
 
 <!-- CONFIG-START - must match your profile repo (username/username) CONFIG -->
-- FULL_NAME:
-- GITHUB_USER:
-- TEAM:
+- FULL_NAME: Sebastian Bermudez Gutierrez
+- GITHUB_USER: SebastianBermudezGutierrez
+- TEAM: Salud Activa
 - SPRINT_GOAL:
 <!-- CONFIG-END -->
 
