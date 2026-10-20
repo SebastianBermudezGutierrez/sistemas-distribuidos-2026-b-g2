@@ -1,8 +1,6 @@
-# 05 - SLIs, SLOs and Error Budget
+# 05 - SLIs, SLOs and Error Budget.
 
 Journey: Android app -> `backend` (gateway, `proxyTo`) -> `appointments-service` (`POST /api/turnos`, saves the `Turno` as `Pendiente` with an outbox event, returns 202) -> outbox relay -> RabbitMQ (`appointments.saga.v1`) -> saga -> `auth-service` (`POST /internal/reservations`) -> `Turno` becomes `Confirmado` or `Cancelado`.
-
-Metric names come from `04-metrics.md`. Window for every SLO: rolling 30 days.
 
 ## 1. Traffic estimate
 
@@ -15,8 +13,6 @@ Metric names come from `04-metrics.md`. Window for every SLO: rolling 30 days.
 | `POST /api/turnos` requests per month | 30,000 | 20,000 x 1.5 |
 | Average rate | ~1,000 per day (~42 per hour) | 30,000 / 30 |
 | Sagas per month | ~20,000 | One `appointment.requested.v1` event per accepted booking |
-
-Scope note: `appointments_requests_total` and `appointments_request_duration_seconds` have no `method` label. `route="/api/turnos"` covers `POST` and `GET` (the list), so the SLIs below measure both. The estimate counts only `POST`, so the budget in requests is a lower bound. It must be re-measured after the first month in QA.
 
 ## 2. SLO 1 - Availability of `/api/turnos`
 
