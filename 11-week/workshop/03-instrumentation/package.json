@@ -1,0 +1,12 @@
+{
+    "name": "appointments-service-instrumentation",
+    "version": "2.0.0",
+    "private": true,
+    "description": "Trace context, structured logs and metrics for appointments-service (CP3)",
+    "scripts": {
+        "test": "node --test"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
