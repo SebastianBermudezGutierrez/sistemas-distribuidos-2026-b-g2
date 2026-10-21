@@ -1,0 +1,54 @@
+# Burn-rate alerts for SLO 1 (05-slo.md): availability of /api/turnos, 99.9 % over 30 days.
+# Error budget = 0.1 % = 0.001. Bad events are the 5xx answers: result="error".
+# Each alert needs a long window (the burn is big enough) and a short window
+# (it is still happening), plus a minimum number of requests (see 06-alert-policy.md).
+groups:
+  - name: appointments-availability-burn-rate
+    rules:
+      - alert: AppointmentsAvailabilityFastBurn
+        expr: |
+          (
+            sum(rate(appointments_requests_total{route="/api/turnos", result="error"}[1h]))
+            /
+            sum(rate(appointments_requests_total{route="/api/turnos"}[1h]))
+            > (14.4 * 0.001)
+          )
+          and
+          (
+            sum(rate(appointments_requests_total{route="/api/turnos", result="error"}[5m]))
+            /
+            sum(rate(appointments_requests_total{route="/api/turnos"}[5m]))
+            > (14.4 * 0.001)
+          )
+          and
+          sum(increase(appointments_requests_total{route="/api/turnos"}[1h])) >= 20
+        labels:
+          severity: critical
+          team: appt-mgmt
+        annotations:
+          summary: "/api/turnos is spending the 30-day error budget 14.4 times faster than allowed (1 h and 5 min windows)"
+          runbook_url: "https://github.com/SebastianBermudezGutierrez/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
+
+      - alert: AppointmentsAvailabilitySlowBurn
+        expr: |
+          (
+            sum(rate(appointments_requests_total{route="/api/turnos", result="error"}[6h]))
+            /
+            sum(rate(appointments_requests_total{route="/api/turnos"}[6h]))
+            > (6 * 0.001)
+          )
+          and
+          (
+            sum(rate(appointments_requests_total{route="/api/turnos", result="error"}[30m]))
+            /
+            sum(rate(appointments_requests_total{route="/api/turnos"}[30m]))
+            > (6 * 0.001)
+          )
+          and
+          sum(increase(appointments_requests_total{route="/api/turnos"}[6h])) >= 100
+        labels:
+          severity: warning
+          team: appt-mgmt
+        annotations:
+          summary: "/api/turnos is spending the 30-day error budget 6 times faster than allowed (6 h and 30 min windows)"
+          runbook_url: "https://github.com/SebastianBermudezGutierrez/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
