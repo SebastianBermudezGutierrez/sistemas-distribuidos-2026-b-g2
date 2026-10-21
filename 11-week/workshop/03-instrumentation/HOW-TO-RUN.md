@@ -26,7 +26,6 @@ From the root of the team repo:
 ```bash
 cp -r observability backend/observability
 cp services/appointments-service/authClient.js backend/services/appointments-service/authClient.js
-git apply real-code-changes.diff
 docker compose up --build
 ```
 
