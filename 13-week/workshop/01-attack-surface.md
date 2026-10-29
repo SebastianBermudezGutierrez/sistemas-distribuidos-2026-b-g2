@@ -1,4 +1,4 @@
-# 01 · Attack surface and trust boundaries.
+# 01 · Attack surface and trust boundaries
 
 Scope: the Salud Activa (`appt-mgmt`) system as it runs today with `docker-compose.yml`
 in the code repository: the `backend` gateway, `auth-service`, `appointments-service`,
@@ -11,11 +11,12 @@ MongoDB and RabbitMQ, plus the Android app and Firebase Cloud Messaging. My boun
 flowchart LR
     patient([Patient])
     admin([Clinic admin])
+    dev([Developer])
     subgraph device["Untrusted: user device"]
         app["Android app<br/>Room cache, EncryptedSharedPreferences"]
     end
     subgraph edge["Public edge"]
-        gw["backend (api-gateway)<br/>port 3000, the only published port"]
+        gw["backend (api-gateway)<br/>port 3000, plus modules: medicamentos, estudios, chat, admin"]
     end
     subgraph private["Private network (docker compose / ECS)"]
         subgraph tb2["TB2 - internal service API (my boundary)"]
@@ -26,12 +27,16 @@ flowchart LR
         db[("MongoDB<br/>User, Turno, AppointmentReservation")]
     end
     fcm[["Firebase Cloud Messaging"]]
+    repo["Code repository + GitHub Actions<br/>mvp2-quality.yml, terraform_aws"]
+    aws["AWS ECS Fargate + ALB<br/>(deployment.md)"]
+    rds[("AWS RDS PostgreSQL<br/>appointments, docs target")]
+    s3[("AWS S3<br/>medical studies, docs target")]
 
     patient --> app
     admin -->|"TB1 /api/admin + ADMIN_KEY"| gw
     app -->|"TB1 HTTPS + JWT"| gw
     gw -->|"TB3 proxy /api/auth"| auth
-    gw -->|"TB3 proxy /api/turnos"| appt
+    gw -->|"TB3 proxy /api/turnos and /api/demo"| appt
     gw ==>|"TB2 GET /internal/users/:id"| auth
     appt ==>|"TB2 POST and DELETE /internal/reservations"| auth
     appt <-->|"TB4 outbox relay and saga consumer"| mq
@@ -40,6 +45,10 @@ flowchart LR
     gw -->|"TB5 medicamentos, estudios, chat, admin"| db
     gw -->|"TB6 push from chat"| fcm
     fcm -->|"push"| app
+    dev -->|"TB7 push and pull request"| repo
+    repo -->|"TB8 deploy"| aws
+    appt -.->|"docs target"| rds
+    gw -.->|"docs target"| s3
 
     linkStyle 5,6 stroke:#d32f2f,stroke-width:3px
     style tb2 stroke:#d32f2f,stroke-width:3px
@@ -49,10 +58,12 @@ flowchart LR
 |---|---|---|
 | TB1 | Android app or admin, to `backend` gateway | HTTPS from the app, JWT (HS256, 30 days) or `ADMIN_KEY` |
 | TB2 (mine) | `backend` and `appointments-service`, to `auth-service` `/internal/*` | plain HTTP, one shared `x-service-token` |
-| TB3 | `backend` gateway, to `auth-service` and `appointments-service` public routes | plain HTTP, user JWT forwarded, verified again with the shared `JWT_SECRET` |
+| TB3 | `backend` gateway, to `auth-service` and `appointments-service` public routes, including `/api/demo/fail-next-saga` | plain HTTP, user JWT forwarded and verified again with the shared `JWT_SECRET`; the demo route needs `x-demo-token` and is enabled by default in the compose file |
 | TB4 | `appointments-service`, to and from RabbitMQ | `amqp://` with no explicit credentials in the compose file |
 | TB5 | Services, to MongoDB | connection string in `MONGODB_URI` |
 | TB6 | `backend`, to Firebase Cloud Messaging | Firebase Admin credential in `FIREBASE_SERVICE_ACCOUNT` |
+| TB7 | Developer, to the code repository and GitHub Actions | repository permissions; the workflow `mvp2-quality.yml` runs tests and builds, with no secret scan or dependency audit |
+| TB8 | Repository and pipeline, to AWS | deployment described in `deployment.md` and `terraform_aws` |
 
 ## Asset inventory
 
@@ -74,6 +85,9 @@ flowchart LR
 |---|---|---|
 | `POST /internal/reservations` on `auth-service` (port 3001) | `appointments-service`, saga step through `authClient.reserveAppointment` | `x-service-token` equal to `SERVICE_TOKEN`, compared with `!==`; no caller identity |
 | `DELETE /internal/reservations/:reservationId` | `appointments-service`, saga compensation and appointment cancellation | same |
-| `GET /internal/users/:id` | `backend`, `middleware/auth.js`, on every authenticated request when `AUTH_SERVICE_URL` is set | same; returns the full profile, but the code only reads `fcmToken` |
+| `GET /internal/users/:id` | `backend`, `middleware/auth.js`, on each request to the routes that use it (`/api/chat`, `/api/estudios`, `/api/medicamentos`) when `AUTH_SERVICE_URL` is set | same; returns the full profile, but the code only reads `fcmToken` |
 | Port 3001, plain HTTP | any container in the compose network; no host port is published | network reachability only; `/api/auth/*` (register and login) shares the same listener |
 | `GET /health/live`, `GET /health/ready` | container healthchecks | none; `ready` shows the database status |
+
+Nodes marked "docs target" (RDS PostgreSQL and S3) come from `deployment.md` and are not in the code yet. `nodemailer` and `resend` are declared in `backend/package.json`, but no file uses them.
+
