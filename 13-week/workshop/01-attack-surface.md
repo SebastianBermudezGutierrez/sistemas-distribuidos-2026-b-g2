@@ -1,4 +1,4 @@
-# 01 · Attack surface and trust boundaries
+# 01 · Attack surface and trust boundaries.
 
 Scope: the Salud Activa (`appt-mgmt`) system as it runs today with `docker-compose.yml`
 in the code repository: the `backend` gateway, `auth-service`, `appointments-service`,
