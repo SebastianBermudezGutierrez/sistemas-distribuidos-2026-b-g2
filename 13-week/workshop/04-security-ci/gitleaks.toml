@@ -1,0 +1,23 @@
+title = "Salud Activa secret scanning rules"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "mongodb-uri-with-credentials"
+description = "MongoDB connection string that includes a user and a password"
+regex = '''mongodb(?:\+srv)?://[^/\s:@]+:[^@\s]+@'''
+tags = ["mongodb", "credentials"]
+
+[[rules]]
+id = "hardcoded-jwt-secret-fallback"
+description = "JWT secret written in the code as a fallback value"
+regex = '''SaludActiva_Secret_Key_\d{4}[A-Za-z_]*'''
+tags = ["jwt", "secret"]
+
+[allowlist]
+description = "Placeholders in example files and the public Firebase client configuration"
+paths = [
+    '''(^|/)\.env\.example$''',
+    '''(^|/)google-services\.json$'''
+]

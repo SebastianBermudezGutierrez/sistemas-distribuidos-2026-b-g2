@@ -1,0 +1,70 @@
+name: Security gates
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - qa
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: 8.21.2
+  AUDIT_LEVEL: critical
+
+jobs:
+  secrets-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks and verify its checksum
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -sSL -o gitleaks.tar.gz "${base}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSL -o checksums.txt "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep "linux_x64.tar.gz" checksums.txt | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+      - name: Scan the commits of the pull request for secrets
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: ./gitleaks detect --source . --config .github/gitleaks.toml --redact --log-opts "origin/${BASE_REF}..HEAD"
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Audit production dependencies
+        working-directory: backend
+        run: npm audit --omit=dev --audit-level="${AUDIT_LEVEL}"
+
+  authorization-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install locked backend dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Run the negative authorization tests
+        working-directory: backend
+        run: npx jest tests/security --runInBand
