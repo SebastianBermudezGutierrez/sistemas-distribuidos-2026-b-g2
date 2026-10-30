@@ -11,6 +11,8 @@
 - STORIES: 
 - 
    https://github.com/code-corhuila/appt-mgmt-docs/issues/24 
+
    https://github.com/code-corhuila/appt-mgmt-docs/issues/25 
+   
    https://github.com/code-corhuila/appt-mgmt-docs/issues/31
 <!-- CONFIG-END -->
