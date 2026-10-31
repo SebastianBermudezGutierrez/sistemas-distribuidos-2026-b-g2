@@ -53,11 +53,11 @@
 - [x] Testable acceptance criteria
 - [x] Tests added/updated (unit / integration)
 - [ ] DDD / hexagonal boundaries respected (domain has no I/O)
-- [ ] No secrets; config via environment variables
-
-> Note: the secrets item is not checked because this week's analysis found a default service credential in the repository. The secret scan rules and the first security story are meant to fix that.
+- [ ] No secrets; config via environment variables  
 
 ## 6. Evidence links
+- Fork: https://github.com/SebastianBermudezGutierrez/sistemas-distribuidos-2026-b-g2.git
+- Docs: https://github.com/code-corhuila/appt-mgmt-docs.git
 - Attack surface: 01-attack-surface.md
 - STRIDE analysis: 05-architecture/security/stride-SebastianBermudezGutierrez.md (PR in the -docs repository)
 - Security stories: issues in the -docs repository, listed in STORIES
